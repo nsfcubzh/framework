@@ -2,6 +2,7 @@ local particles = {}
 
 particles.init = function(self, env)
     self.env = env
+    rawset(self.env, "Particles", self)
 end
 
 particles.createEmitter = function(config)
