@@ -36,11 +36,21 @@ local ui_mt = {
                     error("UI:Register(constructor) - '"..constructor.Name.."' is already loaded", 2)
                 end
 
-                self.loaded[constructor.Name] = ui_loader.copyTable(constructor)
+                self.loaded[constructor.Name] = self.loader.copyTable(constructor)
             end
         elseif self.loaded[key] ~= nil then
             return function(...)
+                local o = self.loader.createBaseNode(self.uikit)
 
+                o.Remove = self.loaded[key].Remove
+                o.Update = self.loaded[key].Update
+                o.Tick = self.loaded[key].Tick
+
+                o.initialized = true
+                
+                self.loaded[key].Create(o, ...)
+
+                return o
             end
         end
     end
@@ -55,6 +65,7 @@ end
 ui_loader.new = function(loader)
     local ui = {}
     ui.env = loader.env
+    ui.loader = loader
     ui.uikit = require("uikit")
 
     ui.loaded = {}
@@ -67,6 +78,7 @@ ui_loader.createBaseNode = function(uikit)
     local node = {}
 
     node.uikit_node = uikit:createNode()
+    node.initialized = false
 
     setmetatable(node, {
         __index = function(self, key)
@@ -78,11 +90,15 @@ ui_loader.createBaseNode = function(uikit)
                 return self.uikit_node.addChild
             elseif key == "uikit_object" then
                 return self.uikit_node
+            elseif self.initialized == false then
+                return rawget(self, key)
             end
         end,
         __newindex = function(self, key, value)
             if key == "Position" then
                 self.uikit_node.pos = value
+            elseif self.initialized == false then
+                rawset(self, key, value)
             end
         end
     })
