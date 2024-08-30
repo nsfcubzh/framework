@@ -63,6 +63,33 @@ ui_loader.new = function(loader)
     return ui
 end
 
+ui_loader.createBaseNode = function(uikit)
+    local node = {}
+
+    node.uikit_node = uikit:createNode()
+
+    setmetatable(node, {
+        __index = function(self, key)
+            if key == "Position" then
+                return self.uikit_node.pos
+            elseif key == "SetParent" then
+                return self.uikit_node.setParent
+            elseif key == "AddChild" then
+                return self.uikit_node.addChild
+            elseif key == "uikit_object" then
+                return self.uikit_node
+            end
+        end,
+        __newindex = function(self, key, value)
+            if key == "Position" then
+                self.uikit_node.pos = value
+            end
+        end
+    })
+
+    return node
+end
+
 --http://lua-users.org/wiki/CopyTable
 ui_loader.copyTable = function(orig, copies)
     copies = copies or {}
