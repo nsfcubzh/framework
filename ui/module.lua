@@ -42,12 +42,21 @@ local ui_mt = {
             return function(...)
                 local o = {} 
                 o.uikit_node = self.uikit:createNode()
+                o.uikit_node.nsfkit_node = o
                 o.initialized = false
 
                 setmetatable(o, {
                     __index = function(self, key)
                         if key == "Position" then
                             return rawget(self, "uikit_node").pos
+                        elseif key == "SetParent" then
+                            return function(s, newparent)
+                                if newparent.uikit_object == nil then
+                                    error("UI:SetParent(new_parent) - new_parent must be a NSFCubzh UI module element.", 2)
+                                end
+                                rawget(self, "uikit_node"):setParent(newparent.uikit_object)
+                                rawget(self, "Update")(self)
+                            end
                         elseif key == "uikit_object" then
                             return rawget(self, "uikit_node")
                         elseif rawget(self, "initialized") == false then
@@ -85,7 +94,10 @@ local ui_mt = {
                     end
                 })
 
-                o.Remove = self.loaded[key].Remove
+                o.Remove = function(_)
+                    self.loaded[key].Remove(o)
+                    o.uikit_object:remove()
+                end
                 o.Update = self.loaded[key].Update
                 o.Tick = self.loaded[key].Tick
 
@@ -116,6 +128,25 @@ ui_loader.new = function(loader)
 
     ui.loaded = {}
     setmetatable(ui, ui_mt)
+
+    ui:Register({
+        Name = "Node",
+        Create = function(self)
+
+        end,
+        Remove = function(self)
+
+        end,
+        Update = function(self)
+            
+        end,
+        Get = function(self)
+            
+        end,
+        Set = function(self)
+
+        end
+    })
 
     return ui
 end
