@@ -1,3 +1,5 @@
+-- WIP PARTICLES MODULE
+
 local particles = {}
 
 particles.init = function(self, env)

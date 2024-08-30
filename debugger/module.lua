@@ -1,5 +1,5 @@
 -- Debug
--- Debugging module
+-- NSFCubzh Debugging module
 
 local debug = {}
 

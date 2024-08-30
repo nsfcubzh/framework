@@ -1,5 +1,5 @@
--- Network (old - Crystal)
--- Network module
+-- Network
+-- NSFCubzh Network module
 
 local network = {}
 

@@ -1,5 +1,5 @@
 -- UI
--- NSFWorks UI
+-- NSFCubzh UI
 
 local ui_loader = {}
 

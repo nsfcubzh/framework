@@ -1,5 +1,5 @@
 -- Loader
--- NSFWorks loader module (base of all games)
+-- NSFCubzh loader module (base of all games)
 
 local l = {}
 
