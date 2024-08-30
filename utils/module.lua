@@ -1,5 +1,5 @@
 -- Utils
--- NSFWorks utils
+-- NSFCubzh utils
 
 local utils = {}
 
@@ -64,6 +64,17 @@ utils.init = function(self, e)
 		end
 		return copy
 	end
+
+	rawset(self.env.table, "contains", 
+		function(t, e)
+			for _, v in pairs(t) do
+				if v == e then
+					return true
+				end
+			end
+			return false
+		end
+	  )
 end
 
 return utils
