@@ -52,13 +52,35 @@ local ui_mt = {
                             return rawget(self, "uikit_node")
                         elseif rawget(self, "initialized") == false then
                             return rawget(self, key)
+                        else
+                            return rawget(self, "Get")(
+                                setmetatable({}, {
+                                    __index = function(s, k) 
+                                        return rawget(self, k)
+                                    end,
+                                    __newindex = function(s, k, v)
+                                        rawset(self, k, v)
+                                    end
+                                }), key
+                            )
                         end
                     end,
                     __newindex = function(self, key, value)
                         if key == "Position" then
                             rawget(self, "uikit_node").pos = value
                         elseif rawget(self, "initialized") == false then
-                            return rawset(self, key, value)
+                            rawset(self, key, value)
+                        else
+                            rawget(self, "Set")(
+                                setmetatable({}, {
+                                    __index = function(s, k) 
+                                        return rawget(self, k)
+                                    end,
+                                    __newindex = function(s, k, v)
+                                        rawset(self, k, v)
+                                    end
+                                }), key, value
+                            ) 
                         end
                     end
                 })
@@ -67,9 +89,12 @@ local ui_mt = {
                 o.Update = self.loaded[key].Update
                 o.Tick = self.loaded[key].Tick
 
-                o.initialized = true
+                o.Get = self.loaded[key].Get
+                o.Set = self.loaded[key].Set
 
                 self.loaded[key].Create(o, ...)
+
+                o.initialized = true
 
                 return o
             end
