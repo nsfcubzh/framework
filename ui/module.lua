@@ -32,13 +32,13 @@ local ui_mt = {
                     error("UI:Register(constructor) - constructor must have .Set field", 2)
                 end
 
-                if self.loaded[constructor.Name] ~= nil then
+                if rawget(self, "loaded")[constructor.Name] ~= nil then
                     error("UI:Register(constructor) - '"..constructor.Name.."' is already loaded", 2)
                 end
 
-                self.loaded[constructor.Name] = self.loader.copyTable(constructor)
+                rawget(self, "loaded")[constructor.Name] = ui_loader.copyTable(constructor)
             end
-        elseif self.loaded[key] ~= nil then
+        elseif rawget(self, "loaded")[key] ~= nil then
             return function(...)
                 local o = {} 
                 o.uikit_node = self.uikit:createNode()
@@ -46,47 +46,47 @@ local ui_mt = {
                 o.initialized = false
 
                 setmetatable(o, {
-                    __index = function(self, key)
+                    __index = function(slf, key)
                         if key == "Position" then
-                            return rawget(self, "uikit_node").pos
+                            return rawget(slf, "uikit_node").pos
                         elseif key == "SetParent" then
                             return function(s, newparent)
                                 if newparent.uikit_object == nil then
                                     error("UI:SetParent(new_parent) - new_parent must be a NSFCubzh UI module element.", 2)
                                 end
-                                rawget(self, "uikit_node"):setParent(newparent.uikit_object)
-                                rawget(self, "Update")(self)
+                                rawget(slf, "uikit_node"):setParent(newparent.uikit_object)
+                                rawget(slf, "Update")(slf)
                             end
                         elseif key == "uikit_object" then
-                            return rawget(self, "uikit_node")
-                        elseif rawget(self, "initialized") == false then
-                            return rawget(self, key)
+                            return rawget(slf, "uikit_node")
+                        elseif rawget(slf, "initialized") == false then
+                            return rawget(slf, key)
                         else
-                            return rawget(self, "Get")(
+                            return rawget(slf, "Get")(
                                 setmetatable({}, {
                                     __index = function(s, k) 
-                                        return rawget(self, k)
+                                        return rawget(slf, k)
                                     end,
                                     __newindex = function(s, k, v)
-                                        rawset(self, k, v)
+                                        rawset(slf, k, v)
                                     end
                                 }), key
                             )
                         end
                     end,
-                    __newindex = function(self, key, value)
+                    __newindex = function(slf, key, value)
                         if key == "Position" then
-                            rawget(self, "uikit_node").pos = value
-                        elseif rawget(self, "initialized") == false then
-                            rawset(self, key, value)
+                            rawget(slf, "uikit_node").pos = value
+                        elseif rawget(slf, "initialized") == false then
+                            rawset(slf, key, value)
                         else
-                            rawget(self, "Set")(
+                            rawget(slf, "Set")(
                                 setmetatable({}, {
                                     __index = function(s, k) 
-                                        return rawget(self, k)
+                                        return rawget(slf, k)
                                     end,
                                     __newindex = function(s, k, v)
-                                        rawset(self, k, v)
+                                        rawset(slf, k, v)
                                     end
                                 }), key, value
                             ) 
@@ -95,16 +95,16 @@ local ui_mt = {
                 })
 
                 o.Remove = function(_)
-                    self.loaded[key].Remove(o)
+                    rawget(self, "loaded")[key].Remove(o)
                     o.uikit_object:remove()
                 end
-                o.Update = self.loaded[key].Update
-                o.Tick = self.loaded[key].Tick
+                o.Update = rawget(self, "loaded")[key].Update
+                o.Tick = rawget(self, "loaded")[key].Tick
 
-                o.Get = self.loaded[key].Get
-                o.Set = self.loaded[key].Set
+                o.Get = rawget(self, "loaded")[key].Get
+                o.Set = rawget(self, "loaded")[key].Set
 
-                self.loaded[key].Create(o, ...)
+                rawget(self, "loaded")[key].Create(o, ...)
 
                 o.initialized = true
 
