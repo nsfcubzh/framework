@@ -95,6 +95,9 @@ local ui_mt = {
                 })
 
                 o.Remove = function(_)
+                    if o.TickListener ~= nil then
+                        o.TickListener:Remove()
+                    end
                     rawget(self, "loaded")[key].Remove(o)
                     o.uikit_object:remove()
                 end
@@ -105,6 +108,11 @@ local ui_mt = {
                 o.Set = rawget(self, "loaded")[key].Set
 
                 rawget(self, "loaded")[key].Create(o, ...)
+                o:Update()
+
+                if o.Tick ~= nil then
+                    o.TickListener = LocalEvent:Listen(LocalEvent.Name.Tick, function() o:Tick() end)
+                end
 
                 o.initialized = true
 
